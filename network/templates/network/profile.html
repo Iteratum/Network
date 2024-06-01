@@ -1,0 +1,51 @@
+<!-- templates/network/profile.html -->
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ profile.user.username }}</h5>
+                        <p class="card-text">{{ profile.bio }}</p>
+                        <p class="card-text"><small class="text-muted">{{ profile.location }}</small></p>
+                        <p class="card-text"><small class="text-muted">Joined {{ profile.user.date_joined|date:"F Y" }}</small></p>
+                        <p class="card-text"><small class="text-muted">Followers: <span id="follower-count">{{ follower_count }}</span></small></p>
+                        <p class="card-text"><small class="text-muted">Following: <span id="following-count">{{ following_count }}</span></small></p>
+                        {% if user.username == profile.user.username %}
+                        {% else %}
+                            <button id="follow-unfollow-btn" class="btn btn-primary" data-username="{{ profile.user.username }}" data-user-id="{{ user_id }}">
+                                {% if is_following %}<p>Unfollow</p>{% else %}<p>follow</p>{% endif %}
+                            </button>
+                        {% endif %}
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <h3>Posts</h3>
+                <div id="all-posts">
+                    {% for post in posts %}
+                    <div class="card mb-2" data-post-id="{{ post.id }}">
+                        <div class="card-body">
+                            <a href="/profile/{{ post.poster.username }}"><h5 class="card-title">{{ post.poster.username }}</h5></a>
+                            <p class="card-text">{{ post.post }}</p>
+                            <p class="card-text"><small class="text-muted">{{ post.timestamp }}</small></p>
+                            <button class="btn btn-secondary btn-sm edit-btn">Edit</button>
+                            <button class="btn btn-primary btn-sm save-edit-btn" style="display: none;">Save</button>
+                            <button class="btn btn-success btn-sm like-btn">Like <span class="like-count">{{ post.likes.count }}</span></button>
+                            <button class="btn btn-danger btn-sm unlike-btn">Unlike <span class="unlike-count">{{ post.unlikes.count }}</span></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block script %}
+        <script src="{% static 'network/profile.js' %}"></script>
+    {% endblock %}
+{% endblock %}

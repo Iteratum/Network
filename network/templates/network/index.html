@@ -1,0 +1,31 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <form id="post-form">
+                    <textarea id="post-content" class="form-control" placeholder="What’s happening?" rows="3"></textarea>
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    <button type="button" class="btn btn-primary mt-2">Post</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="all-posts" class="mt-4">
+            <!-- Posts will be dynamically added here -->
+            
+        </div>
+
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul id="pagination-controls" class="pagination justify-content-center">
+                <!-- Pagination controls will be dynamically added here -->
+            </ul>
+        </nav>
+    </div>
+
+    {% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
+    {% endblock %}
+{% endblock %}
