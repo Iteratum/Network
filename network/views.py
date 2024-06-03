@@ -22,14 +22,21 @@ def profile(request, username):
     # Ensure the UserProfile exists
     profile, created = UserProfile.objects.get_or_create(user=user)
     posts = Post.objects.filter(poster=user).order_by('-timestamp')
+
+    # Paginate posts
+    paginator = Paginator(posts, 10)  # Show 10 posts per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     is_following = profile.followers.filter(id=request.user.id).exists()
     context = {
         'profile': profile,
-        'posts': posts,
+        'posts': page_obj,  # Pass the paginated posts
         'is_following': is_following,
         'follower_count': profile.followers.count(),
         'following_count': user_profile.followings.count(),
-        'user_id': user.id  # Add the user ID to the context
+        'user_id': user.id,  # Add the user ID to the context
+        'page_obj': page_obj  # Add the page object to the context
     }
     return render(request, 'network/profile.html', context)
 
@@ -208,17 +215,20 @@ def edit_access(request, post_id):
 def edit_post(request, post_id):
     try:
         post = Post.objects.get(pk=post_id)
-    except Post.DoesNotExist:
-        return JsonResponse({'error': 'Post not found.'}, status=404)
+        if request.method == "PUT":
+            # Check if the request user is the poster
+            if post.poster != request.user:
+                return JsonResponse({'error': 'You cannot edit this post.'}, status=403)
 
-    if request.method == "PUT":
-        poster = Post.objects.get(pk=post_id).poster
-        if poster != request.user:
-            return JsonResponse({'error': 'You cannot edit this post.'}, status=501)
-        else:
+            # Parse the request body
             data = json.loads(request.body)
-            post.post = data.get('content', post.post)
+            new_content = data.get('newContent', post.post)
+            print(new_content)
+
+            # Update the existing post
+            post.post = new_content
             post.save()
+
             return JsonResponse({
                 'id': post.id,
                 'poster': post.poster.username,
@@ -227,8 +237,12 @@ def edit_post(request, post_id):
                 'unlikes': post.unlikes.count(),
                 'timestamp': post.timestamp.strftime('%Y-%m-%d %H:%M:%S')
             })
-    else:
-        return JsonResponse({'error': 'PUT request required.'}, status=400)
+        else:
+            return JsonResponse({'error': 'PUT request required.'}, status=400)
+    except Post.DoesNotExist:
+        return JsonResponse({'error': 'Post not found.'}, status=404)
+
+    
 
 
 def login_view(request):

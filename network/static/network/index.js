@@ -211,7 +211,10 @@ async function getEditAccess(postId) {
     const response = await fetch(`/edit_access/${postId}`);
     if (response.ok) {
         postDiv.querySelector('.card-text').innerHTML = `
-        <textarea class="form-control edit-textarea" rows="3">${postContent}</textarea>`;
+        <textarea id="textarea" class="form-control edit-textarea" rows="3">${postContent}</textarea>`;
+        const newContent = document.querySelector('#textarea').value;
+        console.log(newContent)
+        console.log(postContent)
         postDiv.querySelector('.edit-btn').style.display = 'none';
         postDiv.querySelector('.save-edit-btn').style.display = 'inline-block';
     } else {
@@ -239,7 +242,8 @@ function showAlert(message, type, parentElement) {
 
 async function saveEdit(postId) {
     const postDiv = document.querySelector(`[data-post-id="${postId}"]`);
-    const newContent = postDiv.querySelector('.edit-textarea').value;
+    const newContent = postDiv.querySelector('#textarea').value;
+    console.log(newContent)
 
     const response = await fetch(`/edit/${postId}`, {
         method: 'PUT',
@@ -247,7 +251,7 @@ async function saveEdit(postId) {
             'Content-Type': 'application/json',
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
         },
-        body: JSON.stringify({ post: newContent })
+        body: JSON.stringify({ newContent })
     });
 
     if (response.ok) {
