@@ -31,7 +31,6 @@ async function followOrUnfollowUser(userId) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
         }
     });
 
